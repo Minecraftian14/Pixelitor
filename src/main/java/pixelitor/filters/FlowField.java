@@ -141,7 +141,7 @@ public class FlowField extends ParametrizedFilter {
                 return particle.meta.fieldColors[particle.getFieldX()][particle.getFieldY()];
             }
         },
-        RGB("RGB", false) {
+        Acceleration("Acceleration", false) {
             @Override
             Color getColor(FlowFieldParticle particle) {
                 return rgbColorFromAcceleration(particle.delta, particle.startingColor);
