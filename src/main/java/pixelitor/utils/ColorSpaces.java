@@ -4,6 +4,10 @@ import net.jafama.FastMath;
 
 public class ColorSpaces {
 
+    public static int packRGB(int[] rgbs) {
+        return packRGB(rgbs[0], rgbs[1], rgbs[2]);
+    }
+
     public static int packRGB(int r, int g, int b) {
         return packARGB(255, r, g, b);
     }
@@ -29,6 +33,25 @@ public class ColorSpaces {
         return argbs;
     }
 
+    public static int[] repackRGBtoARGB(int[] rgb, int[] argb) {
+        assert rgb.length >= 3;
+        argb = checkArray(argb, 4);
+        argb[0] = 255;
+        argb[1] = rgb[0];
+        argb[2] = rgb[1];
+        argb[3] = rgb[2];
+        return argb;
+    }
+
+    public static int[] repackARGBtoRGB(int[] argb, int[] rgb) {
+        assert argb.length >= 4;
+        rgb = checkArray(rgb, 3);
+        rgb[0] = argb[1];
+        rgb[1] = argb[2];
+        rgb[2] = argb[3];
+        return rgb;
+    }
+
     public static float[] RGBtoOKLAB(int[] rgb, float[] oklab) {
         assert rgb.length >= 3;
         oklab = checkArray(oklab, 3);
@@ -48,21 +71,21 @@ public class ColorSpaces {
         return oklab;
     }
 
-    public static int[] OKLABtoRGB(float[] oklab,int[] rgb) {
-        assert oklab.length>=3;
+    public static int[] OKLABtoRGB(float[] oklab, int[] rgb) {
+        assert oklab.length >= 3;
         rgb = checkArray(rgb, 3);
 
-        float l = oklab[1] + 0.3963377774f * oklab[2] + 0.2158037573f * oklab[3];
-        float m = oklab[1] - 0.1055613458f * oklab[2] - 0.0638541728f * oklab[3];
-        float s = oklab[1] - 0.0894841775f * oklab[2] - 1.2914855480f * oklab[3];
+        float l = oklab[0] + 0.3963377774f * oklab[1] + 0.2158037573f * oklab[2];
+        float m = oklab[0] - 0.1055613458f * oklab[1] - 0.0638541728f * oklab[2];
+        float s = oklab[0] - 0.0894841775f * oklab[1] - 1.2914855480f * oklab[2];
 
         l = FastMath.pow3(l);
         m = FastMath.pow3(m);
         s = FastMath.pow3(s);
 
         rgb[0] = ((int) ((4.0767417f * l - 3.3077115913f * m + 0.2309699292f * s) * 255));
-        rgb[0] = ((int) ((-1.268438f * l + 2.6097574011f * m - 0.3413193965f * s) * 255));
-        rgb[0] = ((int) ((-0.0041960864f * l - 0.7034186147f * m + 1.7076147010f * s) * 255));
+        rgb[1] = ((int) ((-1.268438f * l + 2.6097574011f * m - 0.3413193965f * s) * 255));
+        rgb[2] = ((int) ((-0.0041960864f * l - 0.7034186147f * m + 1.7076147010f * s) * 255));
 
         return rgb;
     }
@@ -71,9 +94,7 @@ public class ColorSpaces {
         if (array == null) {
             return new int[length];
         }
-        if (array.length < length) {
-            throw new ArrayIndexOutOfBoundsException("Given array must be null, or have a minimum length of " + length);
-        }
+        assert array.length >= length : "Given array must be null, or have a minimum length of " + length;
         return array;
     }
 
@@ -81,9 +102,7 @@ public class ColorSpaces {
         if (array == null) {
             return new float[length];
         }
-        if (array.length < length) {
-            throw new ArrayIndexOutOfBoundsException("Given array must be null, or have a minimum length of " + length);
-        }
+        assert array.length >= length : "Given array must be null, or have a minimum length of " + length;
         return array;
     }
 }

@@ -20,6 +20,7 @@ package pixelitor.filters;
 import com.jhlabs.image.BoxBlurFilter;
 import org.jdesktop.swingx.graphics.ColorUtilities;
 import pixelitor.filters.gui.RangeParam;
+import pixelitor.utils.ColorSpaces;
 import pixelitor.utils.ImageUtils;
 
 import java.awt.Color;
@@ -90,26 +91,25 @@ public class ComicBook extends ParametrizedFilter {
     }
 
     public static BufferedImage stairs(BufferedImage src, int stair_steps) {
+
         Stairs stairs = new Stairs(stair_steps);
         BufferedImage out = ImageUtils.copyImage(src);
         int[] pixels = ImageUtils.getPixelsAsArray(out);
+
+        int[] rgbs = new int[3]; // buffer
+        float[] oklab = new float[3]; // buffer
+
         for (int i = 0; i < pixels.length; i++) {
             int rgb = pixels[i];
-            int r = (rgb >>> 16) & 0xFF;
-            int g = (rgb >>> 8) & 0xFF;
-            int b = rgb & 0xFF;
+            ColorSpaces.unpackRGB(rgb, rgbs);
+            ColorSpaces.RGBtoOKLAB(rgbs, oklab);
 
-            float[] hsl = ColorUtilities.RGBtoHSL(r, g, b);
-            hsl[2] = stairs.get(hsl[2]);
-
-            int[] rgbs = ColorUtilities.HSLtoRGB(hsl[0], hsl[1], hsl[2], null);
-            r = rgbs[0];
-            g = rgbs[1];
-            b = rgbs[2];
-
-            rgb = ((0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
+            oklab[0] = stairs.get(oklab[0]);
+            ColorSpaces.OKLABtoRGB(oklab, rgbs);
+            rgb = ColorSpaces.packRGB(rgbs);
             pixels[i] = rgb;
         }
+
         return out;
     }
 
